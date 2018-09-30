@@ -1,0 +1,54 @@
+package com.aarsoftronix.sharedroid;
+
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.Socket;
+
+public class ShareDroid extends AppCompatActivity
+{
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_share_droid);
+        Thread thd = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    Socket clientSocket = new Socket("192.168.100.6", 1111);
+                    File fileReadLoc = new File("/storage/emulated/0/abc.txt");
+                    FileInputStream getFileData= new FileInputStream(fileReadLoc);
+                    DataOutputStream sendToNetwork = new DataOutputStream(clientSocket.getOutputStream());
+                    int dataIndex;
+                    int fileLength = (int)fileReadLoc.length();
+                    sendToNetwork.writeInt(fileLength);
+                    while((dataIndex = getFileData.read()) != -1)
+                    {
+                        sendToNetwork.writeByte(dataIndex);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Message errorMessage = Message.obtain();
+                    errorMessage.obj = "Unable to access file!";
+                    mHandler.sendMessage(errorMessage);
+                }
+            }
+        });thd.start();
+    }
+    Handler mHandler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            textView.setText(msg.obj.toString());
+        }
+    };
+}

@@ -1,0 +1,88 @@
+package com.example.rahul.server;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.os.*;
+import java.io.*;
+import java.net.*;
+
+
+public class MainActivity extends AppCompatActivity
+{
+    TextView tv1;
+    Thread sThread;
+    EditText port,mesg;
+    ServerSocket ss;
+    Socket path;
+    DataOutputStream dataOutputStream;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        tv1=(TextView)findViewById(R.id.textView);
+        port=(EditText)findViewById(R.id.editText);
+        mesg=(EditText)findViewById(R.id.editText2);
+
+        sThread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    ss=new ServerSocket(Integer.parseInt(port.getText().toString()));
+                    path=ss.accept();
+                    DataInputStream dis=new DataInputStream(path.getInputStream());
+                    dataOutputStream = new DataOutputStream(path.getOutputStream());
+
+                    while (true)
+                    {
+                        Message msg = Message.obtain();
+                        msg.obj = dis.readUTF();
+                        handler.sendMessage(msg);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Message msg = Message.obtain();
+                    msg.obj = e.toString();
+                    handler.sendMessage(msg);
+                }
+            }
+        });
+
+    }
+    public void btnClick(View v)
+    {
+
+        if (v.getId() == R.id.button2)
+        {
+            sThread.start();
+        }
+        else
+        {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try
+                    {
+                        dataOutputStream.writeUTF(mesg.getText().toString());
+                    }catch (Exception e){}
+                }
+            });
+            t.start();
+        }
+    }
+    Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            tv1.setText(msg.obj.toString());
+            super.handleMessage(msg);
+        }
+    };
+}

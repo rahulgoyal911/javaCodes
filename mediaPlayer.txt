@@ -1,0 +1,50 @@
+package com.example.rahul.mediaplayer;
+
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity
+{
+    private Button play, stop, pause;
+    MediaPlayer mp ;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        play = (Button) findViewById(R.id.button1);
+        stop = (Button) findViewById(R.id.button2);
+        pause = (Button) findViewById(R.id.button3);
+    }
+    public void click(View v)
+    {
+        try {
+            if (v.getId() == R.id.button1) {
+                try
+                {
+                    Uri uri = Uri.parse("/storage/emulated/0/song.mp3");
+                    mp = MediaPlayer.create(this, uri);
+                } catch (Exception e) {
+                    Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+                }
+                mp.start();
+                }
+                else if (v.getId() == R.id.button2)
+                {
+                    mp.release();
+                } else {
+                    mp.pause();
+                }
+            } catch (Exception e)
+        {
+            Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+        }
+    }
+}

@@ -1,0 +1,29 @@
+package com.example.rahul.streaming;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.VideoView;
+import android.net.Uri;
+import android.widget.MediaController;
+
+public class MainActivity extends AppCompatActivity {
+    VideoView vidView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        vidView=(VideoView)findViewById(R.id.videoView);
+        String vidAddress = "https://archive.org/download/ksnn_compilation_master_the_internet/ksnn_compilation_master_the_internet_512kb.mp4";
+        Uri vidUri = Uri.parse(vidAddress);
+        vidView.setVideoURI(vidUri);
+        MediaController vidControl = new MediaController(this);
+        vidControl.setAnchorView(vidView);
+        vidView.setMediaController(vidControl);
+    }
+    public void btnClick(View v)
+    {
+        vidView.start();
+    }
+}

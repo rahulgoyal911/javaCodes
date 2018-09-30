@@ -1,0 +1,99 @@
+package com.example.rahul.evaluation;
+
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import java.io.*;
+import java.io.InputStream;
+import java.net.*;
+import java.net.URLConnection;
+
+public class MainActivity extends AppCompatActivity {
+    Thread sThread,splitter;
+    TextView tv1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        tv1=(TextView)findViewById(R.id.textView);
+        sThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL("http://lq.djring.com/48/488860/Diamond%20-%20Gurnam%20Bhullar%20(DJJOhAL.Com).mp3");
+                    URLConnection uc = url.openConnection();
+                    uc.connect();
+                    FileOutputStream fos = new FileOutputStream("/storage/emulated/0/test.mp3");
+                    InputStream is = uc.getInputStream();
+                    byte[] bytearray = new byte[1024];
+                    int ch;
+                    while ((ch = is.read(bytearray)) != -1) {
+                        fos.write(bytearray, 0, ch);
+                    }
+                    fos.flush();
+                    is.close();
+                } catch (Exception e)
+                {
+
+                    Message msg = Message.obtain();
+                    msg.obj = e.toString();
+                    handler.sendMessage(msg);
+                }
+            }
+        });
+    }
+    public void download(View v)
+    {
+        sThread.start();
+    }
+    public void split(View v)
+    {
+        splitter=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try
+                {
+                    File f = new File("/storage/emulated/0/test.mp3");
+                    FileInputStream fis = new FileInputStream(f);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    File f1 = new File("/storage/emulated/0/xyz1.mp3");
+                    File f2 = new File("/storage/emulated/0/xyz2.mp3");
+                    FileOutputStream fos1 = new FileOutputStream(f1);
+                    FileOutputStream fos2= new FileOutputStream(f2);
+                    int b = 0;
+                    while((f.length()/2) != f1.length() && (b = bis.read()) != -1)
+                    {
+                        fos1.write(b);
+                    }
+                    fos1.close();
+                    fis.skip(fis.available()/2);
+                    int d = 0;
+                    while((d = fis.read()) != -1)
+                    {
+                        fos2.write(d);
+                    }
+
+
+                    fos2.close();
+                    bis.close();
+                }
+                catch( Exception e) {}
+            }
+        });splitter.start();
+
+    }
+    Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            tv1.setText(msg.obj.toString());
+            super.handleMessage(msg);
+        }
+    };
+
+}

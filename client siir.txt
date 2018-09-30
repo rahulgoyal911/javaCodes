@@ -1,0 +1,83 @@
+package com.example.xyz.downloading;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.os.*;
+import java.io.*;
+import java.net.*;
+
+public class MainActivity extends AppCompatActivity
+{
+    EditText ipAddress, port, getMessage;
+    TextView showMessage;
+    Thread txThread, rxThread;
+    Socket s;
+    DataInputStream dataInputStream;
+    DataOutputStream dataOutputStream;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ipAddress = (EditText) findViewById(R.id.editText);
+        port = (EditText) findViewById(R.id.editText2);
+        getMessage = (EditText) findViewById(R.id.editText3);
+        showMessage = (TextView) findViewById(R.id.textView);
+
+        rxThread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    s = new Socket(ipAddress.getText().toString(), Integer.parseInt(port.getText().toString()));
+                    dataOutputStream = new DataOutputStream(s.getOutputStream());
+                    dataInputStream = new DataInputStream(s.getInputStream());
+                    while (true)
+                    {
+                        Message msg = Message.obtain();
+                        msg.obj = dataInputStream.readUTF();
+                        handler.sendMessage(msg);
+                    }
+                }catch (Exception e){}
+            }
+        });
+    }
+
+    public void btnClick(View v)
+    {
+        if(v.getId() == R.id.button)
+        {
+            rxThread.start();
+        }
+        else
+        {
+            txThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        dataOutputStream.writeUTF(getMessage.getText().toString());
+                    }
+                    catch (Exception e) {}
+                }
+            });
+            txThread.start();
+        }
+    }
+    Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            showMessage.setText(msg.obj.toString());
+            super.handleMessage(msg);
+        }
+    };
+}

@@ -1,0 +1,65 @@
+package com.example.rouble.download;
+import android.support.v7.app.AppCompatActivity;
+import android.os.*;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import java.io.*;
+import java.io.InputStream;
+import java.net.*;
+import java.net.URLConnection;
+
+public class MainActivity extends AppCompatActivity {
+ TextView txt;
+ String str;
+ Thread sThread;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        txt = (EditText) findViewById(R.id.editText);
+str=txt.getText().toString();
+
+        sThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(""+txt.getText().toString());
+                    URLConnection uc = url.openConnection();
+                    uc.connect();
+                    FileOutputStream fos = new FileOutputStream("/storage/emulated/0/aab.jpg");
+                    InputStream is = uc.getInputStream();
+                    byte[] bytearray = new byte[1024];
+                    int ch;
+                    while ((ch = is.read(bytearray)) != -1) {
+                        fos.write(bytearray, 0, ch);
+                    }
+                    fos.flush();
+                    is.close();
+                } catch (Exception e) {
+                    Message msg = Message.obtain();
+                    msg.obj = e.toString();
+                    handler.sendMessage(msg);
+                }
+            }
+        });
+    }
+
+
+
+    public void btnClick(View v)
+    {
+
+        sThread.start();
+    }
+    Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            txt.setText(msg.obj.toString());
+            super.handleMessage(msg);
+        }
+    };
+
+}

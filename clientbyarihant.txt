@@ -1,0 +1,95 @@
+package com.example.rahul.arihantchat;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.*;
+
+import java.net.*;
+import java.io.*;
+import android.view.View;
+
+public class MainActivity extends AppCompatActivity
+{
+    private DataInputStream dis;
+    private DataOutputStream dos;
+    private Socket s;
+    private EditText ipAddress, portNumber, message;
+    private TextView textView;
+    private Thread thd ,thd2;
+    private String rxd;
+    private Button connectButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ipAddress = (EditText) findViewById(R.id.editText);
+        portNumber = (EditText) findViewById(R.id.editText2);
+        message = (EditText) findViewById(R.id.editText3);
+        textView = (TextView) findViewById(R.id.textView);
+        connectButton = (Button) findViewById(R.id.button2);
+
+        thd = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    s = new Socket(ipAddress.getText().toString(), Integer.valueOf(portNumber.getText().toString()));
+                    dis = new DataInputStream(s.getInputStream());
+                    dos = new DataOutputStream(s.getOutputStream());
+                    while (true)
+                    {
+                        try
+                        {
+                            rxd = dis.readUTF();
+                        }catch(Exception e){}
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                try
+                                {
+                                    textView.setText(rxd);
+                                }catch (Exception e){}
+                            }
+                        });
+                    }
+                }catch (Exception e){}
+            }
+        });
+    }
+
+    public void btnClick(View v)
+    {
+        if(v.getId() == R.id.button2)
+        {
+            try
+            {
+                thd.start();
+                ipAddress.setEnabled(false);
+                portNumber.setEnabled(false);
+                connectButton.setEnabled(false);
+            }catch (Exception e){}
+        }
+        else
+        {
+            thd2 = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        dos.writeUTF(message.getText().toString());
+                    }catch (Exception e){}
+                }
+            });
+            thd2.start();
+        }
+    }
+}

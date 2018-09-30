@@ -1,0 +1,53 @@
+package com.example.rahul.download;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+    }
+    public void btnClick(View v)
+    {
+       new T1().start();
+    }
+
+}
+class T1 extends Thread
+{
+    public void run()
+    {
+        try
+        {
+            URL url = new URL("http://13.127.169.28/vip_images/HNI-Shahrukh.png");
+            URLConnection uc = url.openConnection();
+            uc.connect();
+            FileOutputStream fos = new FileOutputStream("/storage/emulated/0/aa.png");
+            InputStream is = uc.getInputStream();
+            byte[] bytearray = new byte[1024];
+            int ch;
+            while((ch = is.read(bytearray)) != -1)
+            {
+                fos.write(bytearray, 0, ch);
+            }
+            fos.flush();
+            is.close();
+        }
+        catch(Exception e)
+        {
+
+        }
+    }
+
+}

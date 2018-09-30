@@ -1,0 +1,30 @@
+package com.example.rahul.mp3_cutter;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.io.File;
+import java.io.*;
+
+
+public class MainActivity extends AppCompatActivity implements Runnable{
+    EditText e1;
+    ProgressBar progressBar;
+    Thread t;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+}
